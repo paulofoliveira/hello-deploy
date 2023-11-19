@@ -56,3 +56,8 @@ jobs:
 
             - name: 'Deploy with MsDeploy'
               run: '& "C:/Program Files/IIS/Microsoft Web Deploy V3/msdeploy.exe" -verb:sync -source:package=HelloDeploy.Web.zip -allowUntrusted -dest:auto,computerName="https://${{ secrets.WEBDEPLOY_HOST }}/msdeploy.axd?site=${{ secrets.WEBDEPLOY_SITENAME }}",username="${{ secrets.WEBDEPLOY_USERNAME }}",password="${{ secrets.WEBDEPLOY_PASSWD }}",AuthType="Basic" -verbose -enableRule:DoNotDeleteRule'
+
+            - name: 'Delete Package'
+              uses: geekyggo/delete-artifact@v2
+              with:
+                name: ${{ env.PACKAGE_NAME }}
