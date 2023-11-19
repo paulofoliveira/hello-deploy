@@ -8,7 +8,6 @@ on:
     workflow_dispatch: # Allow you to run this workflow manually from the Action tab
 
 env:
-    PROJECT_PATH: 'src/HelloDeploy/HelloDeploy.csproj'
     PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}\src\HelloDeploy\output
     SOLUTION_NAME: 'HelloDeploy.sln'
     BUILD_PLATFORM: 'Any CPU'
