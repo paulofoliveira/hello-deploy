@@ -1,0 +1,42 @@
+name: 'Deploy on IIS'
+on:
+    push:
+        branches: [ main ]
+        paths:
+            - 'src/HelloDeploy/**'
+
+    workflow_dispatch: # Allow you to run this workflow manually from the Action tab
+
+env:
+    PROJECT_PATH: 'src/HelloDeploy/HelloDeploy.csproj'
+    PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}\src\HelloDeploy\output
+    SOLUTION_NAME: 'HelloDeploy.sln'
+    BUILD_PLATFORM: 'Any CPU'
+    BUILD_CONFIGURATION: 'Release'
+    
+jobs:
+    build-package-and-deploy:
+        name: 'Build, Package and Deploy'
+        runs-on: windows-latest
+        steps:
+            - name: 'Checkout'
+              uses: actions/checkout@v3
+              with:
+                fetch-depth: 0
+            
+            - name: 'Setup MSBuild'
+              uses: microsoft/setup-msbuild@v1.1
+
+            - name: 'Setup Nuget Package Restore'
+              uses: nuget/setup-nuget@v1
+
+            - name: 'Restore Nuget Packages'
+              run: nuget restore ${{ env.SOLUTION_NAME }}
+
+            - name: 'Build Application'
+              run: |
+                msbuild ${{ env.SOLUTION_NAME }} /p:Platform="${{ env.BUILD_PLATFORM }}" /p:Configuration="${{ env.BUILD_CONFIGURATION }}" /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="${{ env.PACKAGE_OUTPUT_DIRECTORY }}" /p:AllowUntrustedCertificate=true /p:PrecompileBeforePublish=true
+
+            - name: 'Deploy'
+              run: msdeploy -verb:sync -source:package=${{ env.PACKAGE_OUTPUT_DIRECTORY }}\HelloDeploy.zip -allowUntrusted -dest:auto,computerName="https://${{ secrets.WEBDEPLOY_HOST }}/msdeploy.axd?site=${{ secrets.WEBDEPLOY_SITENAME }}",username="${{ secrets.WEBDEPLOY_USERNAME }}",password="${{ secrets.WEBDEPLOY_PASSWD }}",AuthType="Basic" -verbose -setParam:name="IIS Web Application Name",value=${{ secrets.WEBDEPLOY_SITENAME }} -enableRule:DoNotDeleteRule
+            
