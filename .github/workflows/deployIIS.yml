@@ -12,7 +12,7 @@ env:
     SOLUTION_NAME: 'HelloDeploy.sln'
     BUILD_PLATFORM: 'Any CPU'
     BUILD_CONFIGURATION: 'Release'
-    PACKAGE_NAME: 'webapp'
+    APPLICATION_NAME: 'hello_deploy'
     
 jobs:
     build-and-package:
@@ -35,12 +35,12 @@ jobs:
 
             - name: 'Build Application'
               run: |
-                msbuild ${{ env.SOLUTION_NAME }} /p:Platform="${{ env.BUILD_PLATFORM }}" /p:Configuration="${{ env.BUILD_CONFIGURATION }}" /p:DeployIISAppPath="${{ secrets.WEBDEPLOY_SITENAME }}" /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="${{ env.PACKAGE_OUTPUT_DIRECTORY }}" /p:AllowUntrustedCertificate=true /p:PrecompileBeforePublish=true
+                msbuild ${{ env.SOLUTION_NAME }} /p:Platform="${{ env.BUILD_PLATFORM }}" /p:Configuration="${{ env.BUILD_CONFIGURATION }}" /p:DeployIISAppPath="${{ env.APPLICATION_NAME }}" /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="${{ env.PACKAGE_OUTPUT_DIRECTORY }}" /p:AllowUntrustedCertificate=true /p:PrecompileBeforePublish=true
 
             - name: 'Upload Package'
               uses: actions/upload-artifact@v3
               with:
-                name: ${{ env.PACKAGE_NAME }}
+                name: ${{ env.APPLICATION_NAME }}
                 path: ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
     
     deploy:
@@ -52,12 +52,12 @@ jobs:
             - name: 'Download Package'
               uses: actions/download-artifact@v3
               with:
-                name: ${{ env.PACKAGE_NAME }}
+                name: ${{ env.APPLICATION_NAME }}
 
             - name: 'Deploy with MsDeploy'
-              run: '& "C:/Program Files/IIS/Microsoft Web Deploy V3/msdeploy.exe" -verb:sync -source:package=HelloDeploy.Web.zip -allowUntrusted -dest:auto,computerName="https://${{ secrets.WEBDEPLOY_HOST }}/msdeploy.axd?site=${{ secrets.WEBDEPLOY_SITENAME }}",username="${{ secrets.WEBDEPLOY_USERNAME }}",password="${{ secrets.WEBDEPLOY_PASSWD }}",AuthType="Basic" -verbose -enableRule:DoNotDeleteRule'
+              run: '& "C:/Program Files/IIS/Microsoft Web Deploy V3/msdeploy.exe" -verb:sync -source:package=HelloDeploy.Web.zip -allowUntrusted -dest:auto,computerName="${{ secrets.WEBDEPLOY_COMPUTERNAME }}?site=${{ env.APPLICATION_NAME }}",username="${{ secrets.WEBDEPLOY_USERNAME }}",password="${{ secrets.WEBDEPLOY_PASSWD }}",AuthType="Basic" -verbose -enableRule:DoNotDeleteRule'
 
             - name: 'Delete Package'
               uses: geekyggo/delete-artifact@v2
               with:
-                name: ${{ env.PACKAGE_NAME }}
+                name: ${{ env.APPLICATION_NAME }}
