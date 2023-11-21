@@ -9,8 +9,7 @@ on:
 
 env:
     PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}/src/HelloDeploy.Web/output
-    PROJECT_PATH: 'src/HelloDeploy.Web/HelloDeploy.Web.csproj'
-    SOLUTION_NAME: 'HelloDeploy.sln'
+    PROJECT_PATH: 'src/HelloDeploy.Web/HelloDeploy.Web.csproj'  
     BUILD_PLATFORM: 'Any CPU'
     BUILD_CONFIGURATION: 'Release'
     APPLICATION_NAME: 'hello_deploy'
