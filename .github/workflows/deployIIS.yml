@@ -9,6 +9,7 @@ on:
 
 env:
     PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}/src/HelloDeploy.Web/output
+    PROJECT_PATH: 'src/HelloDeploy.Web/HelloDeploy.Web.csproj'
     SOLUTION_NAME: 'HelloDeploy.sln'
     BUILD_PLATFORM: 'Any CPU'
     BUILD_CONFIGURATION: 'Release'
@@ -31,11 +32,11 @@ jobs:
               uses: nuget/setup-nuget@v1
 
             - name: 'Restore Nuget Packages'
-              run: nuget restore ${{ env.SOLUTION_NAME }}
+              run: nuget restore ${{ env.PROJECT_PATH }}
 
             - name: 'Build Application'
               run: |
-                msbuild ${{ env.SOLUTION_NAME }} /p:Platform="${{ env.BUILD_PLATFORM }}" /p:Configuration="${{ env.BUILD_CONFIGURATION }}" /p:DeployIISAppPath="${{ env.APPLICATION_NAME }}" /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="${{ env.PACKAGE_OUTPUT_DIRECTORY }}" /p:AllowUntrustedCertificate=true /p:PrecompileBeforePublish=true
+                msbuild ${{ env.PROJECT_PATH }} /p:Platform="${{ env.BUILD_PLATFORM }}" /p:Configuration="${{ env.BUILD_CONFIGURATION }}" /p:DeployIISAppPath="${{ env.APPLICATION_NAME }}" /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="${{ env.PACKAGE_OUTPUT_DIRECTORY }}" /p:AllowUntrustedCertificate=true /p:PrecompileBeforePublish=true
 
             - name: 'Upload Package'
               uses: actions/upload-artifact@v3
