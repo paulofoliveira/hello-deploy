@@ -31,7 +31,7 @@ jobs:
               uses: nuget/setup-nuget@v1
 
             - name: 'Restore Nuget Packages'
-              run: nuget restore ${{ env.PROJECT_PATH }}
+              run: nuget restore ${{ env.PROJECT_PATH }} -PackagesDirectory "packages"
 
             - name: 'Build Application'
               run: |
