@@ -7,9 +7,9 @@ on:
 
     workflow_dispatch: # Allow you to run this workflow manually from the Action tab
 
-env:
-    PACKAGE_PATH: ${{ github.workspace }}/src/HelloDeploy.Web/output
-    PROJECT_PATH: 'src/HelloDeploy.Web/HelloDeploy.Web.csproj'  
+env:    
+    PROJECT_PATH: 'src/HelloDeploy.Web' 
+    PROJECT_NAME: 'HelloDeploy.Web'
     BUILD_PLATFORM: 'AnyCPU'
     BUILD_CONFIGURATION: 'Release'
     APPLICATION_NAME: 'hello_deploy'
@@ -31,17 +31,17 @@ jobs:
               uses: nuget/setup-nuget@v1
 
             - name: 'Restore Nuget Packages'
-              run: nuget restore ${{ env.PROJECT_PATH }} -PackagesDirectory "packages"
+              run: nuget restore "${{ env.PROJECT_PATH }}/${{ env.PROJECT_NAME }}.csproj" -PackagesDirectory "packages"
 
             - name: 'Build Application'
               run: |
-                msbuild ${{ env.PROJECT_PATH }} /p:Platform="${{ env.BUILD_PLATFORM }}" /p:Configuration="${{ env.BUILD_CONFIGURATION }}" /p:DeployIISAppPath="${{ env.APPLICATION_NAME }}" /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="output" /p:AllowUntrustedCertificate=true /p:PrecompileBeforePublish=true
+                msbuild "${{ env.PROJECT_PATH }}/${{ env.PROJECT_NAME }}.csproj" /p:Platform="${{ env.BUILD_PLATFORM }}" /p:Configuration="${{ env.BUILD_CONFIGURATION }}" /p:DeployIISAppPath="${{ env.APPLICATION_NAME }}" /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="output" /p:AllowUntrustedCertificate=true /p:PrecompileBeforePublish=true
 
             - name: 'Upload Package'
               uses: actions/upload-artifact@v3
               with:
                 name: ${{ env.APPLICATION_NAME }}
-                path: ${{ env.PACKAGE_PATH }}
+                path: "${{ env.PROJECT_PATH }}/output"
     
     deploy:
       name: 'Deploy on IIS'
