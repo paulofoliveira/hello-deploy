@@ -19,6 +19,7 @@ on:
 jobs:
     deploy:
       name: 'Deploy'
+      runs-on: windows-latest
       steps:     
           
             - name: 'Download Package'
