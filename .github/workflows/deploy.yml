@@ -1,0 +1,27 @@
+name: 'Deploy on IIS'
+on:
+    push:
+        branches: [ main ]
+        paths:
+            - 'src/HelloDeploy.Web/**'
+
+    workflow_dispatch: # Allow you to run this workflow manually from the Action tab
+    
+jobs:
+    build-and-package:
+        uses: paulofoliveira/hello-deploy/.github/workflows/buildAndPackage.yml@main
+        with:
+            project_path: 'src/HelloDeploy.Web'
+            project_name: 'HelloDeploy.Web'
+            application_name: 'hello_deploy'
+
+    deploy:  
+      needs: 'build-and-package'
+      uses: paulofoliveira/hello-deploy/.github/workflows/deployOnIIS.yml@main
+      with:
+        project_name: 'HelloDeploy.Web'
+        application_name: 'hello_deploy'
+      secrets:
+        computer_name: ${{ secrets.WEBDEPLOY_COMPUTERNAME }}
+        user_name: ${{ secrets.WEBDEPLOY_USERNAME }}
+        user_passwd: ${{ secrets.WEBDEPLOY_PASSWD }}
