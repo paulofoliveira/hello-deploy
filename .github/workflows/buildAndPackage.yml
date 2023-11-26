@@ -1,0 +1,48 @@
+name: 'Build and Package'
+on:
+    workflow_call:
+        inputs:
+            project_path:
+                required: true
+                type: string
+            project_name:
+                required: true
+                type: string
+            platform:
+                required: true
+                type: string
+                default: 'AnyCPU'
+            configuration:
+                required: true
+                type: string
+                default: 'Release'
+            application_name:
+                required: true
+                type: string
+
+jobs:
+    build-and-package:
+        name: 'Build and Package'
+        runs-on: windows-latest
+        steps:
+            - name: 'Checkout'
+              uses: actions/checkout@v3
+            
+            - name: 'Setup MSBuild'
+              uses: microsoft/setup-msbuild@v1.1
+
+            - name: 'Setup Nuget Package Restore'
+              uses: nuget/setup-nuget@v1
+
+            - name: 'Restore Nuget Packages'
+              run: nuget restore "${{ inputs.project_path }}/${{ inputs.project_name }}.csproj" -PackagesDirectory "packages"
+
+            - name: 'Build Application'
+              run: |
+                msbuild "${{ inputs.project_path }}/${{ inputs.project_name }}.csproj" /p:Platform="${{ inputs.platform }}" /p:Configuration="${{ inputs.configuration }}" /p:DeployIISAppPath="${{ inputs.application_name }}" /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="output" /p:AllowUntrustedCertificate=true /p:PrecompileBeforePublish=true
+
+            - name: 'Upload Package'
+              uses: actions/upload-artifact@v3
+              with:
+                name: ${{ inputs.application_name }}
+                path: "${{ inputs.project_path }}/output"

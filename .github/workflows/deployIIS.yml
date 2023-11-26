@@ -8,44 +8,20 @@ on:
     workflow_dispatch: # Allow you to run this workflow manually from the Action tab
 
 env:    
-    PROJECT_PATH: 'src/HelloDeploy.Web' 
-    PROJECT_NAME: 'HelloDeploy.Web'
-    BUILD_PLATFORM: 'AnyCPU'
-    BUILD_CONFIGURATION: 'Release'
+     
     APPLICATION_NAME: 'hello_deploy'
     
 jobs:
-    build-and-package:
-        name: 'Build and Package'
-        runs-on: windows-latest
-        steps:
-            - name: 'Checkout'
-              uses: actions/checkout@v3
-              with:
-                fetch-depth: 0
-            
-            - name: 'Setup MSBuild'
-              uses: microsoft/setup-msbuild@v1.1
+    msbuild:
+        uses: paulofoliveira/hello-deploy/.github/workflows/buildAndPackage.yml@main
+        with:
+            project_path: 'src/HelloDeploy.Web'
+            project_name: 'HelloDeploy.Web'
+            application_name: 'hello_deploy'
 
-            - name: 'Setup Nuget Package Restore'
-              uses: nuget/setup-nuget@v1
-
-            - name: 'Restore Nuget Packages'
-              run: nuget restore "${{ env.PROJECT_PATH }}/${{ env.PROJECT_NAME }}.csproj" -PackagesDirectory "packages"
-
-            - name: 'Build Application'
-              run: |
-                msbuild "${{ env.PROJECT_PATH }}/${{ env.PROJECT_NAME }}.csproj" /p:Platform="${{ env.BUILD_PLATFORM }}" /p:Configuration="${{ env.BUILD_CONFIGURATION }}" /p:DeployIISAppPath="${{ env.APPLICATION_NAME }}" /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="output" /p:AllowUntrustedCertificate=true /p:PrecompileBeforePublish=true
-
-            - name: 'Upload Package'
-              uses: actions/upload-artifact@v3
-              with:
-                name: ${{ env.APPLICATION_NAME }}
-                path: "${{ env.PROJECT_PATH }}/output"
-    
     deploy:
       name: 'Deploy on IIS'
-      needs: 'build-and-package'
+      needs: 'msbuild'
       runs-on: windows-latest
       steps:     
           
