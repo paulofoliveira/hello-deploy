@@ -1,0 +1,35 @@
+name: 'Deploy on IIS'
+on:
+    workflow_call:
+        inputs:
+            project_name:
+                required: true
+                type: string
+            application_name:
+                required: true
+                type: string
+        secrets:
+            computer_name:
+                required: true
+            user_name:
+                required: true                
+            user_passwd:
+                required: true
+
+jobs:
+    deploy:
+      name: 'Deploy'
+      steps:     
+          
+            - name: 'Download Package'
+              uses: actions/download-artifact@v3
+              with:
+                name: ${{ inputs.application_name }}
+
+            - name: 'Exec MsDeploy'
+              run: '& "C:/Program Files/IIS/Microsoft Web Deploy V3/msdeploy.exe" -verb:sync -source:package=${{ inputs.project_name }}.zip -allowUntrusted -dest:auto,computerName="${{ secrets.computer_name }}?site=${{ input.application_name }}",username="${{ secrets.user_name }}",password="${{ secrets.user_passwd }}",AuthType="Basic" -verbose -enableRule:DoNotDeleteRule'
+
+            - name: 'Delete Package'
+              uses: geekyeggo/delete-artifact@v2
+              with:
+                name: ${{ env.APPLICATION_NAME }}

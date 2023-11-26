@@ -6,34 +6,22 @@ on:
             - 'src/HelloDeploy.Web/**'
 
     workflow_dispatch: # Allow you to run this workflow manually from the Action tab
-
-env:    
-     
-    APPLICATION_NAME: 'hello_deploy'
     
 jobs:
-    msbuild:
+    build-and-package:
         uses: paulofoliveira/hello-deploy/.github/workflows/buildAndPackage.yml@main
         with:
             project_path: 'src/HelloDeploy.Web'
             project_name: 'HelloDeploy.Web'
             application_name: 'hello_deploy'
 
-    deploy:
-      name: 'Deploy on IIS'
-      needs: 'msbuild'
-      runs-on: windows-latest
-      steps:     
-          
-            - name: 'Download Package'
-              uses: actions/download-artifact@v3
-              with:
-                name: ${{ env.APPLICATION_NAME }}
-
-            - name: 'Deploy with MsDeploy'
-              run: '& "C:/Program Files/IIS/Microsoft Web Deploy V3/msdeploy.exe" -verb:sync -source:package=HelloDeploy.Web.zip -allowUntrusted -dest:auto,computerName="${{ secrets.WEBDEPLOY_COMPUTERNAME }}?site=${{ env.APPLICATION_NAME }}",username="${{ secrets.WEBDEPLOY_USERNAME }}",password="${{ secrets.WEBDEPLOY_PASSWD }}",AuthType="Basic" -verbose -enableRule:DoNotDeleteRule'
-
-            - name: 'Delete Package'
-              uses: geekyeggo/delete-artifact@v2
-              with:
-                name: ${{ env.APPLICATION_NAME }}
+    deploy:  
+      needs: 'build-and-package'
+      uses: paulofoliveira/hello-deploy/.github/workflows/deployOnIIS.yml@main
+      with:
+        project_name: 'HelloDeploy.Web'
+        application_name: 'hello_deploy'
+      secrets:
+        computer_name: ${{ secrets.WEBDEPLOY_COMPUTERNAME }}
+        user_name: ${{ secrets.WEBDEPLOY_USERNAME }}
+        user_passwd: ${{ secrets.WEBDEPLOY_PASSWD }}
