@@ -1,4 +1,4 @@
-name: 'Deploy on IIS'
+name: 'Deploy'
 on:
     push:
         branches: [ main ]
