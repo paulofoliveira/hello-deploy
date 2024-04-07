@@ -1,3 +1,5 @@
+# https://github.com/microsoft/azure-pipelines-tasks/issues/17634
+
 name: 'Deploy on IIS: Reusable Workflow'
 on:
     workflow_call:
@@ -19,7 +21,7 @@ on:
 jobs:
     deploy:
       name: 'Deploy'
-      runs-on: windows-latest
+      runs-on: windows-2019
       steps:     
           
             - name: 'Download Package'
