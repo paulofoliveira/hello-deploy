@@ -1,3 +1,5 @@
+# https://github.com/microsoft/azure-pipelines-tasks/issues/17634
+
 name: 'Build and Package: Reusable Workflow'
 on:
     workflow_call:
@@ -21,7 +23,7 @@ on:
 jobs:
     build-and-package:
         name: 'Build and Package'
-        runs-on: windows-latest
+        runs-on: windows-2019
         steps:
             - name: 'Checkout'
               uses: actions/checkout@v3
