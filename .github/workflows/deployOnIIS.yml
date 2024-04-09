@@ -31,19 +31,9 @@ jobs:
 
             - name: 'Exec MsDeploy'
               run: | 
-                  C:/"Program Files"/IIS/"Microsoft Web Deploy V3"/msdeploy.exe 
-                  -verb:sync 
-                  -source:package=${{ inputs.project_name }}.zip 
-                  -allowUntrusted 
-                  -dest:auto,computerName="${{ secrets.computer_name }}?site=${{ inputs.application_name }}",username="${{ secrets.user_name }}",password="${{ secrets.user_passwd }}",AuthType="Basic" 
-                  -verbose 
-                  -enableRule:DoNotDeleteRule 
-                  -postSync:runCommand="C:\Windows\Microsoft.NET\Framework64\v4.0.30319\aspnet_regiis.exe 
-                  -pef appSettings 
-                  -site hello_deploy 
-                  -app /"
+                  C:/"Program Files"/IIS/"Microsoft Web Deploy V3"/msdeploy.exe -verb:sync -source:package=${{ inputs.project_name }}.zip -allowUntrusted -dest:auto,computerName="${{ secrets.computer_name }}?site=${{ inputs.application_name }}",username="${{ secrets.user_name }}",password="${{ secrets.user_passwd }}",AuthType="Basic" -verbose -enableRule:DoNotDeleteRule -postSync:runCommand="C:\Windows\Microsoft.NET\Framework64\v4.0.30319\aspnet_regiis.exe -pef appSettings -site hello_deploy -app /"
               shell: cmd
-
+              
             - name: 'Delete Package'
               uses: geekyeggo/delete-artifact@v2
               with:
