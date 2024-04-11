@@ -31,7 +31,7 @@ jobs:
 
             - name: 'Exec MsDeploy'
               run: | 
-                  C:/"Program Files"/IIS/"Microsoft Web Deploy V3"/msdeploy.exe -verb:sync -source:package=${{ inputs.project_name }}.zip -allowUntrusted -dest:auto,computerName="${{ secrets.computer_name }}?site=${{ inputs.application_name }}",username="${{ secrets.user_name }}",password="${{ secrets.user_passwd }}",AuthType="Basic" -verbose -enableRule:DoNotDeleteRule -encryptConfig:appSettings -encryptProvider:iisConfigurationProtection"
+                  C:/"Program Files"/IIS/"Microsoft Web Deploy V3"/msdeploy.exe -verb:sync -source:package=${{ inputs.project_name }}.zip -allowUntrusted -dest:auto,computerName="${{ secrets.computer_name }}?site=${{ inputs.application_name }}",username="${{ secrets.user_name }}",password="${{ secrets.user_passwd }}",AuthType="Basic" -encryptConfig:appSettings -encryptProvider:iisConfigurationProtection -verbose -enableRule:DoNotDeleteRule"
               shell: cmd
               
             - name: 'Delete Package'
